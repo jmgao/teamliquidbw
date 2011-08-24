@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name          TLBW
 // @description   Userscript to make teamliquid more useful for Brood War fans
-// @version       1.1
+// @version       1.1a
 // @include       http://teamliquid.net/*
-// @include		  http://www.teamliquid.net/*
+// @include	  http://www.teamliquid.net/*
 // ==/UserScript==
 
 // Change default tlpd search to BW (Korea)
