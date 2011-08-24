@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          TLBW
 // @description   Userscript to make teamliquid more useful for Brood War fans
-// @version       2.3
+// @version       2.4
 // @include       http://teamliquid.net/*
 // @include       http://www.teamliquid.net/*
 // @exclude       http://teamliquid.net/sc2/*
@@ -21,12 +21,11 @@
  *                Opera users should replace the .user.js extension with just a .js before putting it into the userjs directory.
  *
  *  Changelog:
+ *        2.4:    Changed the link when clicking on the TLPD banner to go directly to the BW TLPD
  *        2.3:    Fixed the script run time to properly change everything before the page shows up on all 3 browsers
  *        2.2:    Swapped store and power rank links on the top bar
  *                Moved around the order in which the default changes take place so more visibly obvious changes occur first (before the page fully loads)
- *
  *        2.1:    Added all of teamliquid and blacklisted specific pages to run the script on, instead of whitelisting every individual page
- *
  *        2.0:    Abstracted the section relocation stuff
  */
  
@@ -54,18 +53,18 @@ function main() {
 	/* Swap Power Rank and Store */
 	var links = document.getElementsByTagName("a");
 	for (var i = 0; i < links.length; i++) {
-		if (links[i].getAttribute('href') == "/powerrank/") {
+		if (links[i].getAttribute("href") == "/powerrank/") {
 			links[i].href = "/store/";
 			links[i].innerHTML = "Store";
 		}
-		else if (links[i].getAttribute('href') == "/store/") {		
+		else if (links[i].getAttribute("href") == "/store/") {		
 			links[i].href = "/powerrank/";
 			links[i].innerHTML = "Power Rank";
 		}
 	}
 	
 	/* Remove SC2 Elo rank display */
-	var rank1 = nextObject(document.forms.namedItem('frm_tlpd_search'));
+	var rank1 = nextObject(document.forms.namedItem("frm_tlpd_search"));
 	var rank2 = nextObject(rank1);
 	rank1.parentNode.removeChild(rank1);
 	rank2.parentNode.removeChild(rank2);
@@ -83,7 +82,8 @@ function main() {
 	move_section(streams, tsl);
 	
 	/* Change default tlpd search to BW (Korea) */
-	document.forms.namedItem('frm_tlpd_search').elements.namedItem("type").children[3].selected = true;
+	document.forms.namedItem("frm_tlpd_search").elements.namedItem("type").children[3].selected = true;
+	document.getElementById("nav_tlpd").href = "/tlpd/korean";
 	
 	/* Change liquipedia search to Brood War liquipedia */
 	for (var i = 0; i < document.forms.length; i++) {
