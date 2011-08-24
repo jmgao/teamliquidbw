@@ -1,29 +1,39 @@
 // ==UserScript==
 // @name          TLBW
 // @description   Userscript to make teamliquid more useful for Brood War fans
-// @version       2.1
+// @version       2.3
 // @include       http://teamliquid.net/*
 // @include       http://www.teamliquid.net/*
-// @exclude	      http://teamliquid.net/sc2/*
-// @exclude	      http://teamliquid.net/store/*
-// @exclude	      http://teamliquid.net/tlfe/*
-// @exclude	      http://teamliquid.net/tournaments/*
-// @exclude	      http://teamliquid.net/vods/*
-// @exclude	      http://www.teamliquid.net/sc2/*
-// @exclude	      http://www.teamliquid.net/store/*
-// @exclude	      http://www.teamliquid.net/tlfe/*
-// @exclude	      http://www.teamliquid.net/tournaments/*
-// @exclude	      http://www.teamliquid.net/vods/*
+// @exclude       http://teamliquid.net/sc2/*
+// @exclude       http://teamliquid.net/store/*
+// @exclude       http://teamliquid.net/tlfe/*
+// @exclude       http://teamliquid.net/tournaments/*
+// @exclude       http://teamliquid.net/vods/*
+// @exclude       http://www.teamliquid.net/sc2/*
+// @exclude       http://www.teamliquid.net/store/*
+// @exclude       http://www.teamliquid.net/tlfe/*
+// @exclude       http://www.teamliquid.net/tournaments/*
+// @exclude       http://www.teamliquid.net/vods/*
+// @run-at        document-end
 // ==/UserScript==
  
-/* Changelog:
- *       2.1:     Added all of teamliquid and blacklisted specific pages to run the script on, instead of whitelisting every individual page
- *                Merged changes by kuroshiroi to make the script run on DOMContnetLoaded on Opera (should do this by default on Greasemonkey, but no downside in making it do so anyway)
+/*  Notes:        This should be fully compatible with Firefox (Greasemonkey)/Chrome/Opera.
+ *                Opera users should replace the .user.js extension with just a .js before putting it into the userjs directory.
  *
- *       2.0:     Abstracted the section relocation stuff
+ *  Changelog:
+ *        2.3:    Fixed the script run time to properly change everything before the page shows up on all 3 browsers
+ *        2.2:    Swapped store and power rank links on the top bar
+ *                Moved around the order in which the default changes take place so more visibly obvious changes occur first (before the page fully loads)
+ *
+ *        2.1:    Added all of teamliquid and blacklisted specific pages to run the script on, instead of whitelisting every individual page
+ *
+ *        2.0:    Abstracted the section relocation stuff
  */
  
 /* Sections: news, general, sc2, bw, games, blogs, replays, calendar, streams, tlpd, liquipedia, tsl, poll */
+
+// Wrap the script in an anonymous function so Opera doesn't blow up
+(function() {
 
 function main() {
 	var news = new Section("nav_news_left_mid", 1, false);
@@ -41,6 +51,25 @@ function main() {
 	var tsl = new Section("nav_tslforum", 1, true);
 	var poll = new Section("nav_poll", 1, true);
 	
+	/* Swap Power Rank and Store */
+	var links = document.getElementsByTagName("a");
+	for (var i = 0; i < links.length; i++) {
+		if (links[i].getAttribute('href') == "/powerrank/") {
+			links[i].href = "/store/";
+			links[i].innerHTML = "Store";
+		}
+		else if (links[i].getAttribute('href') == "/store/") {		
+			links[i].href = "/powerrank/";
+			links[i].innerHTML = "Power Rank";
+		}
+	}
+	
+	/* Remove SC2 Elo rank display */
+	var rank1 = nextObject(document.forms.namedItem('frm_tlpd_search'));
+	var rank2 = nextObject(rank1);
+	rank1.parentNode.removeChild(rank1);
+	rank2.parentNode.removeChild(rank2);
+	
 	/* Move the Brood War forums above the SC2 forums */
 	move_section(bw, sc2);
 	
@@ -53,6 +82,9 @@ function main() {
 	/* Move streams to above TSL */
 	move_section(streams, tsl);
 	
+	/* Change default tlpd search to BW (Korea) */
+	document.forms.namedItem('frm_tlpd_search').elements.namedItem("type").children[3].selected = true;
+	
 	/* Change liquipedia search to Brood War liquipedia */
 	for (var i = 0; i < document.forms.length; i++) {
 		var form = document.forms[i];
@@ -60,14 +92,6 @@ function main() {
 			form.action = "http://wiki.teamliquid.net/starcraft/index.php";
 	}
 	
-	/* Change default tlpd search to BW (Korea) */
-	document.forms.namedItem('frm_tlpd_search').elements.namedItem("type").children[3].selected = true;
-	
-	/* Remove SC2 Elo rank display */
-	var rank1 = nextObject(document.forms.namedItem('frm_tlpd_search'));
-	var rank2 = nextObject(rank1);
-	rank1.parentNode.removeChild(rank1);
-	rank2.parentNode.removeChild(rank2);
 }
 
 function Section(id, count, on_right) {
@@ -116,18 +140,24 @@ var previousObject = function(el) {
 	return p;
 }
 
-if (document.readyState==="loading")  {
-	if (window.addEventListener)
-		window.addEventListener("DOMContentLoaded", main, false);
-	else if (window.attachEvent)
-		window.attachEvent("onload", main);
-}
-else if (document.readyState==="complete") {
-	main();
+if (window.opera) {
+	if (document.readyState==="loading")  {
+		if (window.addEventListener)
+			window.addEventListener("DOMContentLoaded", main, false);
+		else if (window.attachEvent)
+			window.attachEvent("onload", main);
+	}
+	else if (document.readyState==="complete") {
+		main();
+	}
+	else {
+		if (window.addEventListener)
+			window.addEventListener("load", main, false);
+		else if (window.attachEvent)
+			window.attachEvent("onload", main);
+	}
 }
 else {
-	if (window.addEventListener)
-		window.addEventListener("load", main, false);
-	else if (window.attachEvent)
-		window.attachEvent("onload", main);
+	main();
 }
+})();
