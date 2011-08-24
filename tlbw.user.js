@@ -6,7 +6,7 @@
 // @include       http://teamliquid.net/index.php
 // @include       http://teamliquid.net/forum/*
 // @include       http://www.teamliquid.net/
-// @include	      http://www.teamliquid.net/index.php
+// @include       http://www.teamliquid.net/index.php
 // @include       http://www.teamliquid.net/forum/*
 // ==/UserScript==
 
